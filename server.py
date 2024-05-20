@@ -3,11 +3,7 @@ import threading
 
 HEADER = 64
 PORT = 5050
-# SERVER = ""
-# Another way to get the local IP address automatically
 SERVER = socket.gethostbyname(socket.gethostname())
-print(SERVER)
-print(socket.gethostname())
 ADDR = (SERVER, PORT)
 FORMAT = 'UTF-8'
 DISCONNECT_MESSAGE = "!DISCONNECT"
@@ -15,21 +11,46 @@ DISCONNECT_MESSAGE = "!DISCONNECT"
 server = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 server.bind(ADDR)
 
+clients = []
+
+
+def broadcast(msg, sender_conn):
+    for client in clients:
+        if client != sender_conn:
+            try:
+                client.send(msg.encode(FORMAT))
+            except:
+                client.close()
+                remove(client)
+
 
 def handle_client(conn, addr):
     print(f"[NEW CONNECTION] {addr} connected.")
     connected = True
+    clients.append(conn)
     while connected:
-        msg_length = conn.recv(HEADER).decode(FORMAT)
-        if msg_length:
-            msg_length = int(msg_length)
-            msg = conn.recv(msg_length).decode(FORMAT)
+        try:
+            msg = conn.recv(2048).decode(FORMAT)
+            if not msg:
+                break
             if msg == DISCONNECT_MESSAGE:
                 connected = False
-            print(f"[{addr}] {msg}")
-        conn.send("Msg received".encode(FORMAT))
+                print(f"[DISCONNECTED] {addr} disconnected.")
+                broadcast(f"[DISCONNECTED] {addr} disconnected.", conn)
+            else:
+                print(f"[{addr}] {msg}")
+                broadcast(f"[{addr}] {msg}", conn)
+        except Exception as e:
+            print(f"Error handling client: {e}")
+            break
 
     conn.close()
+    remove(conn)
+
+
+def remove(conn):
+    if conn in clients:
+        clients.remove(conn)
 
 
 def start():
