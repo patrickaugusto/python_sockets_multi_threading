@@ -43,7 +43,6 @@ def handle_client(conn, addr):
         except Exception as e:
             print(f"Error handling client: {e}")
             break
-
     conn.close()
     remove(conn)
 
