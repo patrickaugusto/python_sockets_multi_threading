@@ -5,9 +5,3 @@ This is a small example of socket programming that is able to connect multiple c
 ## Alunos
 ### Patrick Augusto do Nascimento
 ### Antonio Rodrigues de Carvalho Neto
-
-
-* Encoding the message from a string into bytes so that we can actually send it through the socket.
-* Then follow protocol where length of the first message we send is the length of the message that is about to come.
-* (`send_length = str(msg_length).encode(FORMAT)`)Length of first message that we send, representing the length of (`message`) ... which is the message we actually want to send.
-
